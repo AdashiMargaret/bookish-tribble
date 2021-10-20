@@ -1,0 +1,125 @@
+# Data Setup
+Preparing data for assignment 4 by loading packages, importing data, removing NA values and and changing data class.
+```{r setup, echo=FALSE}
+#load packages
+library(knitr)
+library(psych)
+library(tidyverse)
+library(ggplot2)
+
+#import dataset
+nhanes <-read.csv("C:/Users/adash/Downloads/nhanes_small.csv")
+
+#To remove NA values
+nhanes <- drop_na(nhanes)
+
+#To change character variables to factor
+nhanes <- nhanes %>% 
+  mutate_at(vars(3,7),list(factor))
+
+#View the first 6 rowsdataset
+kable(x = head(nhanes),caption = "Nhanes Dataset")
+
+```
+
+# Indexing
+Learning to use **indexing lists** to print various subsets of data
+```{r indexlist}
+#To create a list with different number rows of the nhanes dataset
+
+nhaneslist <- list(nhanes[1:3,], nhanes [1:6,])
+
+#To print out these lists
+nhaneslist[1]
+nhaneslist[2]
+
+```
+#### Indexing lists for specific variables
+Learning how to use **indexing lists** outputs to print results for *specific variables* only.
+```{r}
+#Using index list 1 for variable Age
+nhaneslist[[1]]$Age
+
+#Using index list 2 for variable Weight
+nhaneslist[[2]]$Weight
+
+```
+
+# Logical Operators
+
+#### Logical operators
+Learning how to use **logical operators** to create dataframes for factor variables
+
+*Gender* is a factor variable with two levels:
+
+- Male
+- Female
+```{r logicaloperators}
+#To create dataframes with factor variable: *Gender*
+nhanes_male <- nhanes[nhanes$Gender == "male",]
+#or
+nhanes_male2 <- nhanes[nhanes$Gender != "female",]
+
+#Both tables are the same!
+#printing the first 6 rows:
+kable(x = head(nhanes_male), caption = "Nhanes male") 
+
+
+```
+
+#### Combining logical operators
+Learning how to combine **logical operators** using *piping*
+```{r combine}
+# To create a dataframe where gender = male and weight > 100:
+nhanes_male3 <- nhanes%>% 
+  filter(Gender == "male" & Weight > 100) 
+#To view
+kable(nhanes_male3)
+
+```
+
+# Statistical Analysis
+
+#### Removing outliers *(+/- 2SD)*
+Learning how to remove **ouliters** from the `nhanes`dataset that was loaded as `nhanes<-read.csv("C:/Users/adash/Downloads/nhanes_small.csv")`
+
+```{r outliers}
+#To remove outliers from all numeric variables:
+nhanesfilter <- subset(x= nhanes, 
+          subset = Weight > (mean(Weight)- 2*sd(Weight))& 
+            Weight < (mean(Weight) + 2*sd(Weight))& 
+            Age > (mean(Age)- 2*sd(Age)) & 
+            Age < (mean(Age) + 2*sd(Age)))
+
+# To view first 6 rows of nhanes data without outliers:
+kable(x = head(nhanesfilter), caption = "Nhanes without outliers")
+
+```
+#### Summary statistics
+Learning to get **summary statistics** of numeric and factor variables using *Describe/DescribeBy* functions.
+
+```{r summarystatistics}
+#To obtain summary stats for numeric values
+describe(nhanesfilter[,4:6], IQR = T)
+
+#To obtain summary stats for factor variable: Gender
+describeBy(nhanesfilter, nhanesfilter$Gender)
+
+```
+We see that using`describe(nhanesfilter[,4:6], IQR = T)`gave us a the summary statistics of all our numeric variables and using `describeBy(nhanesfilter, nhanesfilter$Gender)` divided these statistics by gender.
+
+
+# Scatterplots
+Learning how to make **scatterplots**
+```{r scatterplot}
+#To make scatterplots comparing two levels of a variable:
+
+ggplot(data = nhanesfilter, aes(x = Age, y = Weight))+ 
+geom_point(aes(color = (Gender)))+
+geom_point(aes(shape = (Gender)))+
+geom_smooth(method ="lm", aes(color = (Gender))) 
+
+#Scatterplot was created successfully!
+
+```
+
